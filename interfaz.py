@@ -4,6 +4,7 @@ import sys
 import os
 import tkinter as tk
 from tkinter import filedialog
+import mapa
 
 import pygame_gui.ui_manager
 
@@ -111,8 +112,7 @@ def load_main_map():
 
         print("Saliendo de la pantalla")
 
-        # En la version final, aquí cargamos la otra pantalla, es decir la vista del mapa
-        # Por ejemplo: iniciar_juego(contenido_archivo)
+        mapa.run_map_screen(matriz_result)
 
         pygame.quit()
         sys.exit()
