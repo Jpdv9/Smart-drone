@@ -1,5 +1,10 @@
 import pygame
 import pygame_gui
+from algoritmo_BFS import algoritmo_BFS
+
+
+
+
 
 def run_map_screen(matriz):
 
@@ -20,8 +25,9 @@ def run_map_screen(matriz):
     font_title =pygame.font.SysFont('Arial', 36)
     font_normal = pygame.font.SysFont('Arial', 24)
 
+    original_matriz = [row[:] for row in matriz]  # Create a deep copy
     #Matriz el cual sera utilizada para dibujar el mapa
-    if matriz is None:
+    """if matriz is None:
         matriz = [
             [1, 1, 0, 0, 0, 0, 0, 1, 1, 1],
             [1, 1, 0, 1, 0, 1, 0, 1, 1, 1],
@@ -33,7 +39,7 @@ def run_map_screen(matriz):
             [1, 1, 0, 1, 1, 1, 1, 1, 1, 0],
             [1, 1, 0, 0, 0, 0, 4, 0, 0, 0],
             [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
-        ]
+        ]"""
 
     # Configuracion de la vista
     MARGIN = 200
@@ -60,6 +66,12 @@ def run_map_screen(matriz):
     elapsed_time = 0
     selected_algorithm = "BFS"
     game_started = False
+    current_path = None
+    current_step = 0
+    animation_speed = 500
+    last_move_time = 0
+    total_packages = sum(row.count(4) for row in matriz)
+    found_packages = 0 
 
     ## Elemento del mapa con imagenes
 
@@ -97,6 +109,13 @@ def run_map_screen(matriz):
         manager=manager
     )
 
+    # Boton para reiniciar
+    restart_button = pygame_gui.elements.UIButton(
+        relative_rect=pygame.Rect((window_width - MARGIN + 20, MARGIN + 270, MARGIN - 40, 50)),
+        text='Reiniciar',
+        manager=manager
+        )
+
     #Selector de algoritmo
     algorithm = ['BFS', 'DFS', 'A*']
     algorithm_select =pygame_gui.elements.UIDropDownMenu(
@@ -131,15 +150,88 @@ def run_map_screen(matriz):
                         start_time = pygame.time.get_ticks()
                         movements = 0
                         points = 0
+                        
                         # Aqui iniciamos la logica
-                        print(f"SMART DRONE iniciado con el algoritmo:  {selected_algorithm}")
+                        if selected_algorithm == "BFS":
+                            current_path = algoritmo_BFS(matriz)
+                            if current_path:
+                                print(f"Ruta encontrada: {current_path}")
+                                current_step = 0
+                                last_move_time = pygame.time.get_ticks()
+                                start_button.disable()
+                                restart_button.disable()
+                            
+                            else:
+                                print("No se encontro ruta")
+                                game_started = False
+                                points = 0
+                        #######
+                        # Aqui se puede agregar la logica para los otros algoritmos
+                        #######
 
-                elif event.user_type == pygame_gui.UI_DROP_DOWN_MENU_CHANGED:
-                    if event.ui_element == algorithm_select:
-                        selected_algorithm = event.text
-                        print(f"Algoritmo seleccionado: {selected_algorithm}")
+                        print(f"SMART DRONE iniciado con el algoritmo:  {selected_algorithm}")
+                
+                    elif event.ui_element == restart_button:
+                        # Reiniciar el juego
+                        game_started = False
+                        current_path = None
+                        current_step = 0
+                        points = 0
+                        movements = 0
+                        found_packages = 0
+                        start_time = None
+                        elapsed_time = 0
+
+                        matriz = [row[:] for row in original_matriz] 
+
+                        restart_button.enable()
+                        start_button.enable()
+
+                    elif event.user_type == pygame_gui.UI_DROP_DOWN_MENU_CHANGED:
+                        if event.ui_element == algorithm_select:
+                            selected_algorithm = event.text
+                            print(f"Algoritmo seleccionado: {selected_algorithm}")
 
             manager.process_events(event)
+
+        if game_started and current_path and current_step < len(current_path):
+
+            current_time = pygame.time.get_ticks()
+
+            if current_time - last_move_time >= animation_speed:
+                next_pos = current_path[current_step]
+
+                # Actualizar puntos si llegamos a un paquete
+                if matriz[next_pos[0]][next_pos[1]] == 4:
+                    points += 1
+                    found_packages +=1
+
+                    if found_packages == total_packages:
+                        print("Todos los paquetes fueron recolectados")
+                        game_started = False
+                        restart_button.enable()
+
+                if matriz[next_pos[0]][next_pos[1]] == 3:
+                    points -= 1
+
+                   # Actualizar la matriz con la nueva posición
+                # Primero, encuentra la posición actual del dron y bórrala
+                for row in range(rows):
+                    for col in range(cols):
+                        if matriz[row][col] == 2:
+                            matriz[row][col] = 0
+                            break
+
+                # Actualiza la nueva posición del dron
+                matriz[next_pos[0]][next_pos[1]] = 2  
+                #Incremetamos el contador y actualizamos el tiempo           
+                current_step += 1
+                last_move_time = current_time
+                movements = current_step
+
+                # Pausa para ver el movimiento en el mapa
+                if current_step < len(current_path):
+                    pygame.time.delay(100)
         
         manager.update(time_delta)
 
@@ -211,6 +303,8 @@ def run_map_screen(matriz):
         pygame.display.flip()
 
     return
+
+
 
 if __name__ == "__main__":
     run_map_screen(None)
