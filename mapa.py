@@ -1,6 +1,7 @@
 import pygame
 import pygame_gui
 from algoritmo_BFS import algoritmo_BFS
+from algoritmo_UCS import algoritmo_UCS
 
 
 
@@ -117,7 +118,7 @@ def run_map_screen(matriz):
         )
 
     #Selector de algoritmo
-    algorithm = ['BFS', 'DFS', 'A*']
+    algorithm = ['BFS', 'UCS', 'DFS', 'A*']
     algorithm_select =pygame_gui.elements.UIDropDownMenu(
         options_list=algorithm,
         starting_option=selected_algorithm,
@@ -165,9 +166,24 @@ def run_map_screen(matriz):
                                 print("No se encontro ruta")
                                 game_started = False
                                 points = 0
-                        #######
-                        # Aqui se puede agregar la logica para los otros algoritmos
-                        #######
+                        
+                        elif selected_algorithm == "UCS":
+                                current_path = algoritmo_UCS(matriz)
+                                if current_path:
+                                    print(f"Ruta encontrada: {current_path}")
+                                    current_step = 0
+                                    last_move_time = pygame.time.get_ticks()
+                                    start_button.disable()
+                                    restart_button.disable()
+                                else:
+                                    print("No se encontró ruta")
+                                    game_started = False
+                                    points = 0
+
+########
+# Aqui se puede agregar la logica para los otros algoritmos
+########
+
 
                         print(f"SMART DRONE iniciado con el algoritmo:  {selected_algorithm}")
                 
