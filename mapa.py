@@ -2,6 +2,9 @@ import pygame
 import pygame_gui
 from algoritmo_BFS import algoritmo_BFS
 from algoritmo_UCS import algoritmo_UCS
+from algoritmo_DFS import algoritmo_DFS
+from algoritmo_GBFS import algoritmo_GBFS
+
 
 
 
@@ -65,7 +68,7 @@ def run_map_screen(matriz):
     points = 0
     start_time = None
     elapsed_time = 0
-    selected_algorithm = "BFS"
+    selected_algorithm = 'Selecciona un algoritmo'
     game_started = False
     current_path = None
     current_step = 0
@@ -118,7 +121,7 @@ def run_map_screen(matriz):
         )
 
     #Selector de algoritmo
-    algorithm = ['BFS', 'UCS', 'DFS', 'A*']
+    algorithm = ['Selecciona un algoritmo', 'BFS', 'UCS' 'DFS', 'Avara', 'A*']
     algorithm_select =pygame_gui.elements.UIDropDownMenu(
         options_list=algorithm,
         starting_option=selected_algorithm,
@@ -161,7 +164,6 @@ def run_map_screen(matriz):
                                 last_move_time = pygame.time.get_ticks()
                                 start_button.disable()
                                 restart_button.disable()
-                            
                             else:
                                 print("No se encontro ruta")
                                 game_started = False
@@ -185,6 +187,32 @@ def run_map_screen(matriz):
 ########
 
 
+                        if selected_algorithm == "DFS":
+                            current_path = algoritmo_DFS(matriz)
+                            if current_path:
+                                print(f"Ruta encontrada: {current_path}")
+                                current_step = 0
+                                last_move_time = pygame.time.get_ticks()
+                                start_button.disable()
+                                restart_button.disable()
+                            else:
+                                print("No se encontró ruta")
+                                game_started = False
+                                points = 0
+
+                        elif selected_algorithm == "GBFS":
+                            current_path = algoritmo_GBFS(matriz)
+                            if current_path:
+                                print(f"Ruta encontrada: {current_path}")
+                                current_step = 0
+                                last_move_time = pygame.time.get_ticks()
+                                start_button.disable()
+                                restart_button.disable()
+                            else:
+                                print("No se encontró ruta")
+                                game_started = False
+                                points = 0
+
                         print(f"SMART DRONE iniciado con el algoritmo:  {selected_algorithm}")
                 
                     elif event.ui_element == restart_button:
@@ -203,10 +231,10 @@ def run_map_screen(matriz):
                         restart_button.enable()
                         start_button.enable()
 
-                    elif event.user_type == pygame_gui.UI_DROP_DOWN_MENU_CHANGED:
-                        if event.ui_element == algorithm_select:
-                            selected_algorithm = event.text
-                            print(f"Algoritmo seleccionado: {selected_algorithm}")
+                elif event.user_type == pygame_gui.UI_DROP_DOWN_MENU_CHANGED:
+                    if event.ui_element == algorithm_select:
+                        selected_algorithm = event.text
+                        print(f"Algoritmo seleccionado: {selected_algorithm}")
 
             manager.process_events(event)
 
