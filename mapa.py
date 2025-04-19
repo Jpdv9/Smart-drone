@@ -66,7 +66,7 @@ def run_map_screen(matriz):
     points = 0
     start_time = None
     elapsed_time = 0
-    selected_algorithm = "GBFS"
+    selected_algorithm = 'Selecciona un algoritmo'
     game_started = False
     current_path = None
     current_step = 0
@@ -119,7 +119,7 @@ def run_map_screen(matriz):
         )
 
     #Selector de algoritmo
-    algorithm = ['BFS', 'DFS', 'Avara', 'A*']
+    algorithm = ['Selecciona un algoritmo', 'BFS', 'DFS', 'Avara', 'A*']
     algorithm_select =pygame_gui.elements.UIDropDownMenu(
         options_list=algorithm,
         starting_option=selected_algorithm,
@@ -214,10 +214,10 @@ def run_map_screen(matriz):
                         restart_button.enable()
                         start_button.enable()
 
-                    elif event.user_type == pygame_gui.UI_DROP_DOWN_MENU_CHANGED:
-                        if event.ui_element == algorithm_select:
-                            selected_algorithm = event.text
-                            print(f"Algoritmo seleccionado: {selected_algorithm}")
+                elif event.user_type == pygame_gui.UI_DROP_DOWN_MENU_CHANGED:
+                    if event.ui_element == algorithm_select:
+                        selected_algorithm = event.text
+                        print(f"Algoritmo seleccionado: {selected_algorithm}")
 
             manager.process_events(event)
 

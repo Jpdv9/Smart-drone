@@ -1,5 +1,3 @@
-from collections import deque
-
 def algoritmo_BFS(matriz):
 
     start = None
@@ -14,80 +12,69 @@ def algoritmo_BFS(matriz):
                 break
         if start:
             break
-
     
-    # Buscar todos los objetivos, es decir, los paquetes
+    
+    # Contar todos lo paquetes que hay en el mapa
     targets = []
 
     for row in range(len(matriz)):
         for col in range(len(matriz[row])):
             if matriz[row][col] == 4:
                 targets.append((row, col))
-
-    if not targets:
-        print("No hay objetivos en la matriz")
-        return None
     
+    total_packages = len(targets)
+
+    if (total_packages == 0):
+        print("No hay objetivos en la matriz")
+        return [start]
 
     print(f"Los objetivos son {targets}")
+
+    #Denifimos la prioridad de movimientos que puede hacer el dron
+    #Estos movimientos se pueden cambiar como quiera
+    priority_movements = [(0, 1), (1, 0), (-1, 0), (0, -1)]
 
     # Iniciamos variables para el algoritmo BFS
     current_pos = start
     final_path =[start]
-    remaining_targets = targets.copy()
+    visited = {start}
+    package_collected = 0
 
-    # En este while vamos a buscar el camino a paquete
-    while remaining_targets:
-        # Iniciamos el BFS para el siguente objetivo
-        tail = deque([(current_pos, [])])
-        visited = {current_pos}
-        found_path = None
-        nearest_target = None
+    # Con este while vamos a continuar hasta encontrar todos los paquetes en el mapa
+    while package_collected < total_packages:
+        move_made = False
 
-        # Movimientos del dron
-        movements = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+        # Vamos a probar los movimientos en orden de prioridad
+        for dx, dy in priority_movements:
+            next_x, next_y = current_pos[0] + dx, current_pos[1] + dy
+            next_pos = (next_x, next_y)
 
-        # BFS para encontrar el camino mas corto
-        while tail:
-            (x, y), path = tail.popleft()
+            # Verificamos si el movimiento es valido y no visitado
+            if(0 <= next_x < len(matriz) and
+               0 <= next_y < len(matriz[0]) and
+               matriz [next_x][next_y] != 1 and
+               next_pos not in visited):
+                
+                #Realizando movimientos
+                current_pos = next_pos
+                final_path.append(current_pos)
+                visited.add(current_pos)
+                move_made = True
 
-            # Verificar si la posicion que estamos actualmente no tiene un paquete
-            if (x,y) in remaining_targets:
-                found_path = path + [(x, y)]
-                nearest_target = (x, y)
+                #Verificamos si encontramos una trampa
+                if matriz[next_x][next_y] == 3:
+                    print(f"El dron cayo en una trampa :c en la posicion {next_x},{next_y}")
+                
+                elif matriz[next_x][next_y] == 4:
+                    package_collected += 1
+                    print(f"El dron encontro un paquete y lo recogio :D en la posicion {next_x},{next_y}")
+
                 break
 
-            # Explorar movimientos adyacentes
-            for dx, dy in movements:
-                next_x, next_y = x + dx, y + dy
-                next_pos = (next_x, next_y)
-
-                if (0 <= next_x < len(matriz) and 
-                    0 <= next_y < len(matriz[0]) and 
-                    matriz[next_x][next_y] != 1 and 
-                    next_pos not in visited):
-                    
-                    visited.add(next_pos)
-                    tail.append((next_pos, path + [next_pos]))
-
-                    # Verificar el movimiento del dron y si encontro algo
-                    # Si el dron se mueve a una trampa
-                    if matriz[next_x][next_y] == 3:
-                        print(f"El dron cayo en una trampa en la posicion {next_x}, {next_y}")
-                        #return final_path + path  + [next_pos]
-        if found_path:
-            #Actualizamos el camino  y la posicion actual
-            final_path.extend(found_path[1:])
-            current_pos = nearest_target
-            remaining_targets.remove(nearest_target)
-            print(f"El dron encontro un paquete en la posicion {nearest_target}")
-        
-        else:
-            print("No se encontro un camino a los objetivos restantes")
-            return final_path
-                        
-
-    print("El dron ha recogido todos los paquetes")
+        # Si no se pudo realizar ningún movimiento, terminamos
+        if not move_made:
+            print("El dron no puede moverse más. No se pueden recoger todos los paquetes.")
+            break  
+                
+    print(f"El dron ha recogido {package_collected} de {total_packages} paquetes")
     return final_path           
-
-
