@@ -4,7 +4,7 @@ from algoritmo_BFS import algoritmo_BFS
 from algoritmo_UCS import algoritmo_UCS
 from algoritmo_DFS import algoritmo_DFS
 from algoritmo_GBFS import algoritmo_GBFS
-
+from algoritmo_A import algoritmo_A_estrella
 
 
 
@@ -121,7 +121,7 @@ def run_map_screen(matriz):
         )
 
     #Selector de algoritmo
-    algorithm = ['Selecciona un algoritmo', 'BFS', 'UCS' 'DFS', 'Avara', 'A*']
+    algorithm = ['Selecciona un algoritmo', 'BFS', 'UCS', 'DFS', 'Avara', 'A*']
     algorithm_select =pygame_gui.elements.UIDropDownMenu(
         options_list=algorithm,
         starting_option=selected_algorithm,
@@ -202,6 +202,19 @@ def run_map_screen(matriz):
 
                         elif selected_algorithm == "GBFS":
                             current_path = algoritmo_GBFS(matriz)
+                            if current_path:
+                                print(f"Ruta encontrada: {current_path}")
+                                current_step = 0
+                                last_move_time = pygame.time.get_ticks()
+                                start_button.disable()
+                                restart_button.disable()
+                            else:
+                                print("No se encontró ruta")
+                                game_started = False
+                                points = 0
+
+                        elif selected_algorithm == "A*":
+                            current_path = algoritmo_A_estrella(matriz)
                             if current_path:
                                 print(f"Ruta encontrada: {current_path}")
                                 current_step = 0

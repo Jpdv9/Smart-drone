@@ -1,17 +1,17 @@
 import heapq
 
 def obtener_costo_casilla(valor_celda):
-    if valor_celda == 0 or valor_celda == 4:  # libre o paquete
+    if valor_celda == 0 or valor_celda == 4:  
         return 1
-    elif valor_celda == 3:  # campo electromagnético
+    elif valor_celda == 3:  
         return 5
     else:
-        return float('inf')  # obstáculo o valor inválido
+        return float('inf')  
 
 def algoritmo_UCS(matriz):
     start = None
 
-    # Encontrar el punto de inicio (2)
+    # Encontramos el punto donde esta el dron
     for row in range(len(matriz)):
         for col in range(len(matriz[row])):
             if matriz[row][col] == 2:
@@ -21,7 +21,7 @@ def algoritmo_UCS(matriz):
         if start:
             break
 
-    # Encontrar los paquetes (4)
+    # Buscamos los paquetes
     targets = []
     for row in range(len(matriz)):
         for col in range(len(matriz[row])):
@@ -63,7 +63,7 @@ def algoritmo_UCS(matriz):
                 next_x, next_y = x + dx, y + dy
                 if 0 <= next_x < len(matriz) and 0 <= next_y < len(matriz[0]):
                     celda_valor = matriz[next_x][next_y]
-                    if celda_valor != 1:  # No obstáculos
+                    if celda_valor != 1:  
                         move_cost = obtener_costo_casilla(celda_valor)
                         total_cost = cost + move_cost
                         next_pos = (next_x, next_y)
