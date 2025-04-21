@@ -121,7 +121,7 @@ def run_map_screen(matriz):
         )
 
     #Selector de algoritmo
-    algorithm = ['Selecciona un algoritmo', 'BFS', 'UCS', 'DFS', 'Avara', 'A*']
+    algorithm = ['Selecciona un algoritmo', 'BFS', 'UCS', 'DFS', 'GBFS', 'A*']
     algorithm_select =pygame_gui.elements.UIDropDownMenu(
         options_list=algorithm,
         starting_option=selected_algorithm,
@@ -169,18 +169,18 @@ def run_map_screen(matriz):
                                 game_started = False
                                 points = 0
                         
-                        elif selected_algorithm == "UCS":
-                                current_path = algoritmo_UCS(matriz)
-                                if current_path:
-                                    print(f"Ruta encontrada: {current_path}")
-                                    current_step = 0
-                                    last_move_time = pygame.time.get_ticks()
-                                    start_button.disable()
-                                    restart_button.disable()
-                                else:
-                                    print("No se encontró ruta")
-                                    game_started = False
-                                    points = 0
+                        if selected_algorithm == "UCS":
+                            current_path = algoritmo_UCS(matriz)
+                            if current_path:
+                                print(f"Ruta encontrada: {current_path}")
+                                current_step = 0
+                                last_move_time = pygame.time.get_ticks()
+                                start_button.disable()
+                                restart_button.disable()
+                            else:
+                                print("No se encontró ruta")
+                                game_started = False
+                                points = 0
 
 ########
 # Aqui se puede agregar la logica para los otros algoritmos
@@ -200,7 +200,7 @@ def run_map_screen(matriz):
                                 game_started = False
                                 points = 0
 
-                        elif selected_algorithm == "GBFS":
+                        if selected_algorithm == "GBFS":
                             current_path = algoritmo_GBFS(matriz)
                             if current_path:
                                 print(f"Ruta encontrada: {current_path}")
