@@ -1,81 +1,98 @@
 import heapq
 
-#Definimos la heuristica a usar
 def heuristica_manhattan(pos1, pos2):
     return abs(pos1[0] - pos2[0]) + abs(pos1[1] - pos2[1])
 
+# Costo según el tipo de celda
 def obtener_costo_casilla(valor_celda):
     if valor_celda == 0 or valor_celda == 4:
         return 1
     elif valor_celda == 3:
-        return 5
+        return 8  # campo electromagnetico
     else:
-        return float('inf')
+        return float('inf')  
 
 def algoritmo_A_estrella(matriz):
-    start = None
-    for row in range(len(matriz)):
-        for col in range(len(matriz[row])):
-            if matriz[row][col] == 2:
-                start = (row, col)
-                print(f"El dron está en la posición {start}") #obtenermos la posicion del dron
+    # Buscar la ubicacion del dron
+    inicio = None
+    for i in range(len(matriz)):
+        for j in range(len(matriz[0])):
+            if matriz[i][j] == 2:
+                inicio = (i, j)
+                print(f"Inicio encontrado en {inicio}")
                 break
-        if start:
+        if inicio:
             break
 
-    targets = []
-    for row in range(len(matriz)):
-        for col in range(len(matriz[row])):
-            if matriz[row][col] == 4:
-                targets.append((row, col))#obtenemos la poscion de los paquetes
+    # Busca la ubicacion de todos los paquetes
+    objetivos = []
+    for i in range(len(matriz)):
+        for j in range(len(matriz[0])):
+            if matriz[i][j] == 4:
+                objetivos.append((i, j))
 
-    if not targets:
-        print("No hay objetivos en la matriz")
+    if not inicio or not objetivos:
+        print("No se encontró el inicio o los paquetes.")
         return None
 
-    print(f"Los objetivos son {targets}")
+    # Se definen los movimientos
+    movimientos = [(-1, 0), (0, 1), (1, 0), (0, -1)]
 
-    current_pos = start
-    final_path = [start]
-    remaining_targets = targets.copy()
+    #definimos las variables a usar
+    current_pos = inicio
+    final_path = [inicio]
+    remaining_targets = objetivos.copy()
+    costo_total = 0
+    profundidad_acumulada = 0
 
     while remaining_targets:
-        objetivo_actual = min(remaining_targets, key=lambda t: heuristica_manhattan(current_pos, t))
-        cola_prioridad = []
-        heapq.heappush(cola_prioridad, (0, current_pos, []))
+        objetivo_actual = remaining_targets[0]
         visitados = {}
-
-        movimientos = [(-1,0),(0,1),(1,0),(0,-1)]
+        cola_prioridad = [(0, 0, 0, current_pos, [])]  # (f, g, profundidad, nodo, camino)
+        profundidad_maxima_explorada = 0
+        encontrado = False
 
         while cola_prioridad:
-            costo_total, actual, camino = heapq.heappop(cola_prioridad)
-            if actual in visitados and visitados[actual] <= costo_total:
+            f, g_actual, profundidad, actual, camino = heapq.heappop(cola_prioridad)
+            profundidad_maxima_explorada = max(profundidad_maxima_explorada, profundidad)
+
+            if actual in visitados and visitados[actual] <= g_actual:
                 continue
-            visitados[actual] = costo_total
+            visitados[actual] = g_actual
 
+            # revisamos los costos y profundidadades
             if actual == objetivo_actual:
-                found_path = camino + [actual]
+                camino_completo = camino + [actual]
+                final_path.extend(camino_completo[1:])  # Evitamos duplicar la posición actual
+                costo_total += g_actual
+                profundidad_acumulada += profundidad_maxima_explorada
+                print(f"Paquete recogido en {actual}")
+                current_pos = actual
+                remaining_targets.remove(actual)
+                encontrado = True
                 break
-
+            
+            #aplicamos el movimiento
             for dx, dy in movimientos:
                 nx, ny = actual[0] + dx, actual[1] + dy
                 if 0 <= nx < len(matriz) and 0 <= ny < len(matriz[0]):
                     valor = matriz[nx][ny]
                     if valor != 1:
-                        next_pos = (nx, ny)
-                        g = costo_total + obtener_costo_casilla(valor)
-                        h = heuristica_manhattan(next_pos, objetivo_actual)
-                        f = g + h
-                        heapq.heappush(cola_prioridad, (f, next_pos, camino + [actual]))
+                        costo = obtener_costo_casilla(valor)
+                        if costo == float('inf'):
+                            continue
+                        siguiente = (nx, ny)
+                        nuevo_g = g_actual + costo
+                        h = heuristica_manhattan(siguiente, objetivo_actual)
+                        nuevo_f = nuevo_g + h
+                        heapq.heappush(cola_prioridad, (nuevo_f, nuevo_g, profundidad + 1, siguiente, camino + [actual]))
 
-        if found_path:
-            final_path.extend(found_path[1:])
-            current_pos = objetivo_actual
-            remaining_targets.remove(objetivo_actual)
-            print(f"Paquete recogido en {objetivo_actual}")
-        else:
-            print("No se encontró camino a todos los objetivos")
-            return final_path
+# Imprimimos los resultados
+        if not encontrado:
+            print("No se pudo encontrar un camino a uno de los objetivos.")
+            return None
 
-    print("El dron ha recogido todos los paquetes")
+    print("Todos los paquetes han sido recogidos.")
+    print(f"Costo total del camino: {costo_total}")
+    print(f"Profundidad acumulada del árbol explorado: {profundidad_acumulada}")
     return final_path
