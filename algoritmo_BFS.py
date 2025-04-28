@@ -52,7 +52,7 @@ def algoritmo_BFS(matriz):
             # Reiniciamos la búsqueda desde esta posición
             queue = [(current_pos, path)] 
             final_path = path
-            visited = {pos for pos in visited if pos in path} 
+            visited = {current_pos} 
             continue
         
         # Explorar movimientos en las cuatro direcciones, es decir, los vecinos
