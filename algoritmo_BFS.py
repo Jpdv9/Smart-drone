@@ -80,6 +80,7 @@ def algoritmo_BFS(matriz):
         print(f"El dron ha recogido todos los {total_packages} paquetes")
     else:
         print(f"El dron solo pudo recoger {packages_found} de {total_packages} paquetes")
+        return final_path
     
     print(f"Nodos expandidos: {nodes_expanded}")
     print(f"Longitud del camino: {len(final_path)}")

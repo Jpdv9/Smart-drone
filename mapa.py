@@ -163,7 +163,7 @@ def run_map_screen(matriz):
                                 current_step = 0
                                 last_move_time = pygame.time.get_ticks()
                                 start_button.disable()
-                                restart_button.disable()
+                                restart_button.enable()
                             else:
                                 print("No se encontro ruta")
                                 game_started = False
